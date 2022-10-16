@@ -182,9 +182,9 @@ Caso tenha qualquer duvida sobre <a href="https://docs.github.com/pt/get-started
 ## 🦸 Autor
  
 <a href="https://github.com/Gabriel9Stresser">
- <img  src="https://camo.githubusercontent.com/e01364e2c1c63050f5f68950a1296bcf128f87637fc9994d32d899fd65fbb73e/68747470733a2f2f6d656469612e646973636f72646170702e6e65742f6174746163686d656e74732f313030313537363837393531393730333037332f313030313537373836343432363136383532312f676966676974312e706e673f77696474683d363736266865696768743d363736" width="150px;" alt=""/>
+ <img  src="https://avatars.githubusercontent.com/u/65667183?s=400&u=c698f4af73fd6a9161dab1769b6ab7824f014935&v=4" width="150px;" alt=""/>
  <br>
- <sub><b>Rafael Feitosa ☕</b></sub></a>
+ <sub><b>Gabriel Stresser, Leonardo Leal, Augusto Sacramento e Gustavo</b></sub></a>
  
 
  
@@ -196,6 +196,6 @@ Caso tenha qualquer duvida sobre <a href="https://docs.github.com/pt/get-started
 
 Este projeto esta sobe a licença [MIT](./LICENSE).
 
-Feito com ❤️ por Rafael Feitosa 👋🏽 [Entre em contato!](https://www.linkedin.com/in/gabriel-augusto-soler-stresser-366719100/)
+Feito com ❤️ por Gabriel Stresser, Leonardo Leal, Augusto Sacramento e Gustavo 👋🏽 [Entre em contato!](https://www.linkedin.com/in/gabriel-augusto-soler-stresser-366719100/)
 
 ---
