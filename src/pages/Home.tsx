@@ -1,5 +1,5 @@
 import { Checkbox } from '../components/Checkbox'
-import { ImageSquare } from "phosphor-react";
+import { ImageSquare, PlugsConnected } from "phosphor-react";
 import { Button } from "../components/Button";
 import { InputFile } from "../components/InputFile/index"
 import { Heading } from "../components/Heading";
@@ -8,8 +8,8 @@ import { Text } from "../components/Text";
 import { Logo } from "../Logo";
 import { useEffect, useState } from "react";
 import { CNCLoader } from '../components/Loader';
-import svgcode from 'svgcode';
 import {GCodeViewer} from "react-gcode-viewer";
+import fileToBase64 from '../utils/fileToBase64';
 
 export interface IFile {
 	lastModified: number;
@@ -24,36 +24,28 @@ export function Home(){
     const [disabled, setDisabled] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
     const [image, setImage] = useState<IFile>({} as IFile);
+    const [serialPort, setSerialPort] = useState<string>('');
+    const [base64, setDocBase64] = useState<string>('');
 
-    const handleChangeImage = (event: any) => {
+    const handleChangeImage = async (event: any) => {
         setIsLoading(true);
-        console.log(event)
 		const file = event?.target?.files[0];
 		if (file?.size > 0) {
 			setImage(file);
+            const image = await fileToBase64(file);
+		    setDocBase64('data:image/jpeg;base64,' + image);
 		}
         setIsLoading(false);
 	};
 
-    useEffect(() => {
-        if (image.size > 0) {
-            const gcode = svgcode()
-                .loadFile(__dirname + "test/helloworld.svg")
-                .generateGcode()
-                .getGcode();
-                console.log(gcode)
-        }
-    },[image])
-
-
     const url = "https://storage.googleapis.com/ucloud-v3/6127a7f9aa32f718b8c1ab4f.gcode"
 
-const style = {
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh',
-}
+    const style = {
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+    }
 
     return (
         <div className="w-screen h-screen bg-gray-900 flex items-center flex-col justify-center text-gray-100">
@@ -71,15 +63,25 @@ const style = {
             <form className="flex flex-col gap-4 items-stretch w-full max-w-sm mt-10">
             { isLoading ? <CNCLoader/> 
                 : <>
-                    <label htmlFor="email" className="flex flex-col gap-3">
-                    <Text className="font-semibold">Nome da imagem</Text>
-                    <TextInput.Root>
-                        <TextInput.Icon>
-                        <ImageSquare />
-                        </TextInput.Icon>
+                    <label htmlFor="serialPort" className="flex flex-col gap-3">
+                        <Text className="font-semibold">Porta Serial</Text>
+                        <TextInput.Root>
+                            <TextInput.Icon>
+                            <PlugsConnected />
+                            </TextInput.Icon>
 
-                        <TextInput.Input disabled placeholder={image.name ? image.name : 'Nome da imagem'}/>
-                    </TextInput.Root>
+                            <TextInput.Input placeholder={serialPort ? serialPort : 'COM3 ou COM4'}/>
+                        </TextInput.Root>
+                    </label>
+                    <label htmlFor="image" className="flex flex-col gap-3">
+                        <Text className="font-semibold">Nome da imagem</Text>
+                        <TextInput.Root>
+                            <TextInput.Icon>
+                            <ImageSquare />
+                            </TextInput.Icon>
+
+                            <TextInput.Input disabled placeholder={image.name ? image.name : 'Nome da imagem'}/>
+                        </TextInput.Root>
                     </label>
 
                     <InputFile 
@@ -89,7 +91,7 @@ const style = {
                         type="file"
                         className="file-input"/>
 
-                    <Button onClick={handleChangeImage} disabled={disabled} className="mt-4">Executar</Button>
+                    <Button onClick={handleChangeImage} disabled={disabled}>Executar</Button>
                     </>
             }
             {/* <GCodeViewer
@@ -99,12 +101,6 @@ const style = {
             url={url}
         /> */}
                 </form>
-            
-            <footer className="flex flex-col items-center gap-4 mt-8">
-                <Text asChild size="sm">
-                <a href="" className="text-gray-400 underline hover:text-gray-200">Configurar conexão com o Arduino</a>
-                </Text>
-            </footer>
         </div>
     )
 }
