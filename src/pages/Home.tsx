@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { CNCLoader } from '../components/Loader';
 import {GCodeViewer} from "react-gcode-viewer";
 import fileToBase64 from '../utils/fileToBase64';
+import axios from 'axios';
 
 export interface IFile {
 	lastModified: number;
@@ -19,6 +20,10 @@ export interface IFile {
 	type: string;
 	webkitRelativePath: string;
 }
+
+const client = axios.create({
+    baseURL: "http://localhost:3000" 
+  });
 
 export function Home(){
     const [disabled, setDisabled] = useState(true)
@@ -33,8 +38,19 @@ export function Home(){
 		if (file?.size > 0) {
 			setImage(file);
             const image = await fileToBase64(file);
-		    setDocBase64('data:image/jpeg;base64,' + image);
+		    setDocBase64(image);
 		}
+        setDisabled(false);
+        setIsLoading(false);
+	};
+
+    const executeGcode = async (event: any) => {
+        setIsLoading(true);
+        const postPort = await axios.post("http://localhost:3000/gcode/port", { image: base64, port: 'COM3'});
+        console.log(postPort)
+        if (postPort.status !== 201) setIsLoading(false);
+
+        await axios.post("http://localhost:3000/gcode");
         setIsLoading(false);
 	};
 
@@ -55,14 +71,13 @@ export function Home(){
                 <Heading size="lg" className="mt-4">
                 CNC - NO LAGG
                 </Heading>
-
-                <Text size="lg" className="text-gray-400 mt-1">
-                Escolha a imagem para executar
-                </Text>
             </header>
             <form className="flex flex-col gap-4 items-stretch w-full max-w-sm mt-10">
             { isLoading ? <CNCLoader/> 
                 : <>
+                    <Text size="lg" className="text-gray-400 mt-1">
+                    Escolha a imagem para executar
+                    </Text>
                     <label htmlFor="serialPort" className="flex flex-col gap-3">
                         <Text className="font-semibold">Porta Serial</Text>
                         <TextInput.Root>
@@ -87,11 +102,11 @@ export function Home(){
                     <InputFile 
                         onChange={handleChangeImage} 
                         placeholder="Importar imagem"
-                        accept=".jpg, .png,"
+                        accept=".jpeg, .jpg, .png"
                         type="file"
                         className="file-input"/>
 
-                    <Button onClick={handleChangeImage} disabled={disabled}>Executar</Button>
+                    <Button onClick={executeGcode} disabled={disabled}>Executar</Button>
                     </>
             }
             {/* <GCodeViewer
