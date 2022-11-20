@@ -5,12 +5,13 @@ import { InputFile } from "../components/InputFile/index"
 import { Heading } from "../components/Heading";
 import { TextInput } from "../components/TextInput";
 import { Text } from "../components/Text";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { CNCLoader } from '../components/Loader';
 import {GCodeViewer} from "react-gcode-viewer";
 import LogoNoLagg from "../assets/logo.png";
 import fileToBase64 from '../utils/fileToBase64';
 import axios from 'axios';
+import { Select } from '../components/select';
 
 export interface IFile {
 	lastModified: number;
@@ -30,7 +31,11 @@ export function Home(){
     const [isLoading, setIsLoading] = useState(false)
     const [image, setImage] = useState<IFile>({} as IFile);
     const [serialPort, setSerialPort] = useState<string>('');
-    const [base64, setDocBase64] = useState<string>('');
+    const [serialPortList, setSerialPortList] = useState<any[]>([]);
+
+    useLayoutEffect(() => {
+        getPorts()
+    }, []);
 
     const handleChangeImage = async (event: any) => {
         setIsLoading(true);
@@ -38,19 +43,21 @@ export function Home(){
 		if (file?.size > 0) {
 			setImage(file);
             const image = await fileToBase64(file);
-		    setDocBase64(image);
+            await axios.post("http://localhost:3000/gcode/port", { image: image, port: serialPort});
 		}
         setDisabled(false);
         setIsLoading(false);
 	};
 
-    const executeGcode = async (event: any) => {
-        setIsLoading(true);
-        const postPort = await axios.post("http://localhost:3000/gcode/port", { image: base64, port: 'COM3'});
-        console.log(postPort)
-        if (postPort.status !== 201) setIsLoading(false);
+    const getPorts = async () => {
+        const postPort = await axios.get("http://localhost:3000/gcode/portList");
+        setSerialPortList(postPort.data);
+        setSerialPort(postPort.data[0].path)
+	};
 
-        await axios.post("http://localhost:3000/gcode");
+    const executeGcode = async () => {
+        setIsLoading(true);
+        await axios.post("http://localhost:3000/gcode", { port: serialPort});
         setIsLoading(false);
 	};
 
@@ -61,32 +68,33 @@ export function Home(){
         left: 0,
         width: '100vw',
         height: '100vh',
-    }
+    };
 
     return (
         <div className="w-screen h-screen bg-gray-900 flex items-center flex-col justify-center text-gray-100">
-            <header className="flex flex-col items-center">
+
+            { isLoading ? <CNCLoader/> 
+             : <>
+                <header className="flex flex-col items-center">
                 <img src={LogoNoLagg} width="200px" height="200px"/>
             
                 <Heading size="lg" className="mt-4">
                 CNC - NO LAGG
                 </Heading>
-            </header>
-            <form className="flex flex-col gap-4 items-stretch w-full max-w-sm mt-10">
-            { isLoading ? <CNCLoader/> 
-                : <>
+                </header>
+                <form className="flex flex-col gap-4 items-stretch w-full max-w-sm mt-10">
                     <Text size="lg" className="text-gray-400 mt-1">
                     Escolha a imagem para executar
                     </Text>
+                   
                     <label htmlFor="serialPort" className="flex flex-col gap-3">
-                        <Text className="font-semibold">Porta Serial</Text>
-                        <TextInput.Root>
-                            <TextInput.Icon>
-                            <PlugsConnected />
-                            </TextInput.Icon>
-
-                            <TextInput.Input placeholder={serialPort ? serialPort : 'COM3 ou COM4'}/>
-                        </TextInput.Root>
+                    <Select
+						id="port"
+						onChange={(e) => { console.log(e.target.value); setSerialPort(e.target.value)}}
+						options={serialPortList}
+						value={serialPort}
+						label="Porta Serial"
+					/>
                     </label>
                     <label htmlFor="image" className="flex flex-col gap-3">
                         <Text className="font-semibold">Nome da imagem</Text>
@@ -107,7 +115,8 @@ export function Home(){
                         className="file-input"/>
 
                     <Button onClick={executeGcode} disabled={disabled}>Executar</Button>
-                    </>
+                    </form>
+                </>
             }
             {/* <GCodeViewer
             orbitControls
@@ -115,7 +124,6 @@ export function Home(){
             style={style}
             url={url}
         /> */}
-                </form>
         </div>
     )
 }
