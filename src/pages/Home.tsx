@@ -5,10 +5,10 @@ import { InputFile } from "../components/InputFile/index"
 import { Heading } from "../components/Heading";
 import { TextInput } from "../components/TextInput";
 import { Text } from "../components/Text";
-import { Logo } from "../Logo";
 import { useEffect, useState } from "react";
 import { CNCLoader } from '../components/Loader';
 import {GCodeViewer} from "react-gcode-viewer";
+import LogoNoLagg from "../assets/logo.png";
 import fileToBase64 from '../utils/fileToBase64';
 import axios from 'axios';
 
@@ -66,7 +66,7 @@ export function Home(){
     return (
         <div className="w-screen h-screen bg-gray-900 flex items-center flex-col justify-center text-gray-100">
             <header className="flex flex-col items-center">
-                <Logo />
+                <img src={LogoNoLagg} width="200px" height="200px"/>
             
                 <Heading size="lg" className="mt-4">
                 CNC - NO LAGG
